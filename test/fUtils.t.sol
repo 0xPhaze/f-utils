@@ -15,12 +15,9 @@ contract TestFUtils is Test {
         if (!a.isSubset(b)) fail("A <= B does not hold.");
     }
 
-    // function assertIncludes(uint256[] memory arr, uint256 value) internal {
-    //     if (!arr.includes(value)) {
-    //         emit log_named_uint("Could not find", value);
-    //         fail("Array does not include value");
-    //     }
-    // }
+    function assertNotIncludes(uint256[] memory arr, uint256 value) internal {
+        if (arr.includes(value)) fail(string.concat("Array includes unexpected value.", vm.toString(value)));
+    }
 
     function test_random_fail_SeedUnset() public {
         vm.expectRevert("Random seed unset.");
@@ -93,8 +90,23 @@ contract TestFUtils is Test {
         assertIsSubset(subset, range);
     }
 
-    /// @dev tests are not accurate on arrays
+    /// @dev tests would not be conclusive for
+    /// general arrays that include duplicates
     function test_union(
+        uint256[] memory a,
+        uint256[] memory b,
+        uint256 seed
+    ) public {
+        random.seed(seed);
+
+        uint256[] memory union = a.union(b);
+
+        assertIsSubset(a, union);
+        assertIsSubset(b, union);
+    }
+
+    /// @dev assumes unique elements
+    function test_exclusion(
         uint256 fromA,
         uint256 sizeA,
         uint256 fromB,
@@ -115,9 +127,10 @@ contract TestFUtils is Test {
         uint256[] memory setA = fromA.shuffledRange(toA);
         uint256[] memory setB = fromB.shuffledRange(toB);
 
-        uint256[] memory set = setA.union(setB);
+        uint256[] memory set = setA.exclusion(setB);
 
-        assertIsSubset(setA, set);
-        assertIsSubset(setB, set);
+        assertIsSubset(set, setA);
+
+        for (uint256 i; i < setB.length; i++) assertNotIncludes(set, setB[i]);
     }
 }

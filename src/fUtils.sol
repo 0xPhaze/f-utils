@@ -168,18 +168,17 @@ library fUtils {
         return _toUint256Array(abi.encodePacked(a, b), a.length + b.length);
     }
 
-    function exclude(uint256[] memory arr, uint256[] memory exc) internal pure returns (uint256[] memory out) {
-        uint256 excLength = exc.length;
-        if (excLength == 0) return arr;
+    function exclusion(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory out) {
+        uint256 bLength = b.length;
+        if (bLength == 0) return a;
 
-        uint256 arrLength = arr.length;
+        uint256 aLength = a.length;
 
-        out = new uint256[](arrLength);
+        out = new uint256[](aLength);
 
         uint256 k;
 
-        for (uint256 i; i < arrLength; i++)
-            for (uint256 j; j < excLength; j++) if (!includes(arr, exc[j])) out[k++] = arr[i];
+        for (uint256 i; i < aLength; i++) if (!includes(b, a[i])) out[k++] = a[i];
 
         assembly {
             mstore(out, k)
