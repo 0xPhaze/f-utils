@@ -23,16 +23,16 @@ contract TestFUtils is Test {
         random.next();
     }
 
-    // function test_range(uint256 from, uint256 size) public {
-    //     from = bound(from, 0, MAX_CEIL);
-    //     size = bound(size, 0, MAX);
+    function test_range(uint256 from, uint256 size) public {
+        from = bound(from, 0, MAX_CEIL);
+        size = bound(size, 0, MAX);
 
-    //     uint256 to = from + size;
+        uint256 to = from + size;
 
-    //     uint256[] memory range = from.range(to);
+        uint256[] memory range = from.range(to);
 
-    //     for (uint256 i; i < size; i++) assertEq(range[i], from + i);
-    // }
+        for (uint256 i; i < size; i++) assertEq(range[i], from + i);
+    }
 
     function test_shuffledRange(
         uint256 from,
