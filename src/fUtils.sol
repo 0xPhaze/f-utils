@@ -18,6 +18,10 @@ library random {
         return next(0, type(uint256).max);
     }
 
+    function nextAddress() internal returns (address) {
+        return address(uint160(next(0, type(uint256).max)));
+    }
+
     function next(uint256 high) internal returns (uint256) {
         return next(0, high);
     }
