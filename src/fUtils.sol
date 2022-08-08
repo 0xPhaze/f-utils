@@ -164,6 +164,10 @@ library fUtils {
         return true;
     }
 
+    function union(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encodePacked(a, b), a.length + b.length);
+    }
+
     function exclude(uint256[] memory arr, uint256[] memory exc) internal pure returns (uint256[] memory out) {
         uint256 excLength = exc.length;
         if (excLength == 0) return arr;

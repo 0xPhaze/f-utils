@@ -50,33 +50,26 @@ contract TestFUtils is Test {
 
         uint256 to = from + size;
 
+        uint256[] memory range = from.range(to);
         uint256[] memory shuffled = from.shuffledRange(to);
 
         // local rejects should flag if this were always the case
-        vm.assume(!shuffled.eq(from.range(to)));
+        vm.assume(!shuffled.eq(range));
 
-        assertEq(shuffled.length, size);
-
-        for (uint256 i; i < size; i++) console.log(shuffled[i]);
-
-        assertIsSubset(shuffled, from.range(to));
+        assertIsSubset(range, shuffled);
     }
 
-    function test_sort(
-        uint256 from,
-        uint256 size,
-        uint256 seed
-    ) public {
+    function test_sort(uint256[] memory input, uint256 seed) public {
         random.seed(seed);
 
-        size = bound(size, 0, MAX);
-        from = bound(from, 0, MAX_CEIL);
+        uint256[] memory sorted = input.sort();
 
-        uint256 to = from + size;
+        for (uint256 i = 1; i < sorted.length; i++) assertTrue(sorted[i - 1] <= sorted[i]);
 
-        uint256[] memory shuffled = from.shuffledRange(to);
-
-        assertEq(shuffled.sort(), from.range(to));
+        // still does not guarantee
+        // equality of "sets"
+        assertIsSubset(sorted, input);
+        assertIsSubset(input, sorted);
     }
 
     function test_randomSubset(
@@ -98,5 +91,33 @@ contract TestFUtils is Test {
         uint256[] memory subset = range.randomSubset(subsetSize);
 
         assertIsSubset(subset, range);
+    }
+
+    /// @dev tests are not accurate on arrays
+    function test_union(
+        uint256 fromA,
+        uint256 sizeA,
+        uint256 fromB,
+        uint256 sizeB,
+        uint256 seed
+    ) public {
+        random.seed(seed);
+
+        sizeA = bound(sizeA, 0, MAX);
+        sizeB = bound(sizeB, 0, MAX);
+
+        fromA = bound(fromA, 0, MAX_CEIL);
+        fromB = bound(fromB, 0, MAX_CEIL);
+
+        uint256 toA = fromA + sizeA;
+        uint256 toB = fromB + sizeB;
+
+        uint256[] memory setA = fromA.shuffledRange(toA);
+        uint256[] memory setB = fromB.shuffledRange(toB);
+
+        uint256[] memory set = setA.union(setB);
+
+        assertIsSubset(setA, set);
+        assertIsSubset(setB, set);
     }
 }
