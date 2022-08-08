@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 /// @notice utils for array manipulation
 /// @author phaze (https://github.com/0xPhaze)
-library futils {
+library fUtils {
     /* ------------- utils ------------- */
 
     function slice(uint256[] memory arr, uint256 to) internal pure returns (uint256[] memory out) {
