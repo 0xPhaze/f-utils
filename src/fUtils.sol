@@ -203,7 +203,7 @@ library fUtils {
     function _randomSubset(uint256[] memory arr, uint256 n) internal returns (uint256[] memory out) {
         uint256 arrLength = arr.length;
 
-        require(arrLength <= n, "arrLength <= n");
+        require(n <= arrLength, "arrLength <= n");
 
         out = arr;
 
@@ -231,6 +231,12 @@ library fUtils {
 
     function includes(address[] memory arr, address item) internal pure returns (bool out) {
         for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
+    }
+
+    function isSubset(uint256[] memory a, uint256[] memory b) internal pure returns (bool) {
+        if (a.length > b.length) return false;
+        for (uint256 i; i < a.length; ++i) if (!includes(b, a[i])) return false;
+        return true;
     }
 
     function _toUint256Array(bytes memory arr, uint256 length) internal pure returns (uint256[] memory out) {

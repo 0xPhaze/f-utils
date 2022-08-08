@@ -11,12 +11,16 @@ contract TestFUtils is Test {
     uint256 constant MAX = 100;
     uint256 constant MAX_CEIL = type(uint256).max - MAX;
 
-    function assertIncludes(uint256[] memory arr, uint256 value) internal {
-        if (!arr.includes(value)) {
-            emit log_named_uint("Could not find", value);
-            fail("Array does not include value");
-        }
+    function assertIsSubset(uint256[] memory a, uint256[] memory b) internal {
+        if (!a.isSubset(b)) fail("A <= B does not hold.");
     }
+
+    // function assertIncludes(uint256[] memory arr, uint256 value) internal {
+    //     if (!arr.includes(value)) {
+    //         emit log_named_uint("Could not find", value);
+    //         fail("Array does not include value");
+    //     }
+    // }
 
     function test_random_fail_SeedUnset() public {
         vm.expectRevert("Random seed unset.");
@@ -24,8 +28,8 @@ contract TestFUtils is Test {
     }
 
     function test_range(uint256 from, uint256 size) public {
-        from = bound(from, 0, MAX_CEIL);
         size = bound(size, 0, MAX);
+        from = bound(from, 0, MAX_CEIL);
 
         uint256 to = from + size;
 
@@ -37,12 +41,12 @@ contract TestFUtils is Test {
     function test_shuffledRange(
         uint256 from,
         uint256 size,
-        uint256 rand
+        uint256 seed
     ) public {
-        random.seed(rand);
+        random.seed(seed);
 
-        from = bound(from, 0, MAX_CEIL);
         size = bound(size, 0, MAX);
+        from = bound(from, 0, MAX_CEIL);
 
         uint256 to = from + size;
 
@@ -55,23 +59,44 @@ contract TestFUtils is Test {
 
         for (uint256 i; i < size; i++) console.log(shuffled[i]);
 
-        for (uint256 i; i < size; i++) assertIncludes(shuffled, from + i);
+        assertIsSubset(shuffled, from.range(to));
     }
 
     function test_sort(
         uint256 from,
         uint256 size,
-        uint256 rand
+        uint256 seed
     ) public {
-        random.seed(rand);
+        random.seed(seed);
 
-        from = bound(from, 0, MAX_CEIL);
         size = bound(size, 0, MAX);
+        from = bound(from, 0, MAX_CEIL);
 
         uint256 to = from + size;
 
         uint256[] memory shuffled = from.shuffledRange(to);
 
         assertEq(shuffled.sort(), from.range(to));
+    }
+
+    function test_randomSubset(
+        uint256 from,
+        uint256 size,
+        uint256 subsetSize,
+        uint256 seed
+    ) public {
+        random.seed(seed);
+
+        size = bound(size, 0, MAX);
+        from = bound(from, 0, MAX_CEIL);
+
+        subsetSize = bound(subsetSize, 0, size);
+
+        uint256 to = from + size;
+
+        uint256[] memory range = from.range(to);
+        uint256[] memory subset = range.randomSubset(subsetSize);
+
+        assertIsSubset(subset, range);
     }
 }
