@@ -42,7 +42,7 @@ library futils {
         }
     }
 
-    function range(uint256 from, uint256 to) internal view returns (uint256[] memory out) {
+    function range(uint256 from, uint256 to) internal pure returns (uint256[] memory out) {
         if (to <= from) return new uint256[](0);
 
         unchecked {
@@ -140,12 +140,17 @@ library futils {
     }
 
     function sort(uint256[] memory arr) internal pure returns (uint256[] memory) {
+        return _sort(copy(arr));
+    }
+
+    function _sort(uint256[] memory arr) internal pure returns (uint256[] memory) {
         uint256 n = arr.length;
         for (uint256 i; i < n; i++) {
             for (uint256 j = i + 1; j < n; j++) {
                 if (arr[j] < arr[i]) (arr[i], arr[j]) = (arr[j], arr[i]);
             }
         }
+        return arr;
     }
 
     function randomSubset(
@@ -421,13 +426,13 @@ library futils {
 
         split = new bytes32[](numEl);
 
-        uint256 loc;
+        uint256 loc_;
 
         assembly {
-            loc := add(split, 32)
+            loc_ := add(split, 32)
         }
 
-        mstore(loc, data);
+        mstore(loc_, data);
     }
 
     /// @notice stores data at offset while preserving existing memory
