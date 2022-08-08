@@ -3,6 +3,64 @@ pragma solidity ^0.8.10;
 
 import "forge-std/Test.sol";
 
+library random {
+    bytes32 constant RANDOM_SEED_SET = 0xf6edd386d8fa10678fb6c3e013a7b5212537dbd31d474d780e3d67984c6bec33;
+    bytes32 constant RANDOM_SEED_SLOT = 0x6e377520b7c8a184bde346d33005e4a5bae120b4ba0ebf9af2278ce0bb899ee1;
+
+    function seed(uint256 randomSeed) internal {
+        assembly {
+            sstore(RANDOM_SEED_SLOT, randomSeed)
+            sstore(RANDOM_SEED_SET, 1)
+        }
+    }
+
+    function next() internal returns (uint256) {
+        return next(0, type(uint256).max);
+    }
+
+    function next(uint256 high) internal returns (uint256) {
+        return next(0, high);
+    }
+
+    function next(uint256 low, uint256 high) internal returns (uint256 nextRandom) {
+        uint256 randomSeed;
+
+        assembly {
+            randomSeed := sload(RANDOM_SEED_SLOT)
+        }
+
+        // make sure this was intentionally set to 0
+        // otherwise fuzz-runs could have an uninitialized seed
+        if (randomSeed == 0) {
+            bool randomSeedSet;
+
+            assembly {
+                randomSeedSet := sload(RANDOM_SEED_SET)
+            }
+
+            require(randomSeedSet, "Random seed unset.");
+        }
+
+        return nextFromRandomSeed(low, high, randomSeed);
+    }
+
+    function nextFromRandomSeed(
+        uint256 low,
+        uint256 high,
+        uint256 randomSeed
+    ) internal returns (uint256 nextRandom) {
+        require(low <= high, "low <= high");
+
+        assembly {
+            mstore(0, randomSeed)
+            nextRandom := keccak256(0, 0x20)
+            sstore(RANDOM_SEED_SLOT, randomSeed)
+        }
+
+        nextRandom = low + (nextRandom % (high - low));
+    }
+}
+
 /// @notice utils for array manipulation
 /// @author phaze (https://github.com/0xPhaze)
 library fUtils {
@@ -20,12 +78,10 @@ library fUtils {
         if (to > arr.length) return arr;
         if (to < from) return new uint256[](0);
 
-        unchecked {
-            uint256 n = to - from;
-            out = new uint256[](n);
+        uint256 n = to - from;
+        out = new uint256[](n);
 
-            for (uint256 i = 0; i < n; ++i) out[i] = arr[from + i];
-        }
+        for (uint256 i = 0; i < n; ++i) out[i] = arr[from + i];
     }
 
     function _slice(
@@ -45,12 +101,10 @@ library fUtils {
     function range(uint256 from, uint256 to) internal pure returns (uint256[] memory out) {
         if (to <= from) return new uint256[](0);
 
-        unchecked {
-            uint256 n = to - from;
-            out = new uint256[](n);
+        uint256 n = to - from;
+        out = new uint256[](n);
 
-            for (uint256 i; i < n; ++i) out[i] = from + i;
-        }
+        for (uint256 i; i < n; ++i) out[i] = from + i;
     }
 
     function copy(uint256[] memory from) internal pure returns (uint256[] memory to) {
@@ -58,9 +112,7 @@ library fUtils {
 
         to = new uint256[](n);
 
-        unchecked {
-            for (uint256 i = 0; i < n; ++i) to[i] = from[i];
-        }
+        for (uint256 i = 0; i < n; ++i) to[i] = from[i];
 
         return to;
     }
@@ -68,48 +120,35 @@ library fUtils {
     function _copy(uint256[] memory from, uint256[] memory to) internal pure returns (uint256[] memory) {
         uint256 n = from.length;
 
-        unchecked {
-            for (uint256 i = 0; i < n; ++i) to[i] = from[i];
-        }
+        for (uint256 i = 0; i < n; ++i) to[i] = from[i];
 
         return to;
     }
 
-    function shuffle(uint256[] memory arr, uint256 rand) internal pure returns (uint256[] memory out) {
-        return _shuffle(copy(arr), rand);
+    function shuffle(uint256[] memory arr) internal returns (uint256[] memory out) {
+        return _shuffle(copy(arr));
     }
 
-    function _shuffle(uint256[] memory arr, uint256 rand) internal pure returns (uint256[] memory out) {
+    function _shuffle(uint256[] memory arr) internal returns (uint256[] memory out) {
         out = arr;
 
         uint256 n = arr.length;
-        uint256 c;
 
-        unchecked {
-            for (uint256 i; i < n; ++i) {
-                c = i + (uint256(keccak256(abi.encode(rand, i))) % (n - i));
-                (out[i], out[c]) = (out[c], out[i]);
-            }
+        for (uint256 i; i < n; ++i) {
+            uint256 c = random.next(i, n);
+            (out[i], out[c]) = (out[c], out[i]);
         }
     }
 
-    function shuffledRange(
-        uint256 from,
-        uint256 to,
-        uint256 rand
-    ) internal pure returns (uint256[] memory out) {
+    function shuffledRange(uint256 from, uint256 to) internal returns (uint256[] memory out) {
         if (to <= from) return new uint256[](0);
 
-        unchecked {
-            uint256 n = to - from;
-            out = new uint256[](n);
+        uint256 n = to - from;
+        out = new uint256[](n);
 
-            uint256 c;
-
-            for (uint256 i = 0; i < n; ++i) {
-                c = uint256(keccak256(abi.encode(rand, i))) % (i + 1);
-                (out[c], out[i]) = (from + i, out[c]);
-            }
+        for (uint256 i = 0; i < n; ++i) {
+            uint256 c = random.next(i + 1);
+            (out[c], out[i]) = (from + i, out[c]);
         }
     }
 
@@ -153,32 +192,20 @@ library fUtils {
         return arr;
     }
 
-    function randomSubset(
-        uint256[] memory arr,
-        uint256 n,
-        uint256 rand
-    ) internal pure returns (uint256[] memory out) {
-        return _randomSubset(copy(arr), n, rand);
+    function randomSubset(uint256[] memory arr, uint256 n) internal returns (uint256[] memory out) {
+        return _randomSubset(copy(arr), n);
     }
 
-    function _randomSubset(
-        uint256[] memory arr,
-        uint256 n,
-        uint256 rand
-    ) internal pure returns (uint256[] memory out) {
+    function _randomSubset(uint256[] memory arr, uint256 n) internal returns (uint256[] memory out) {
         uint256 arrLength = arr.length;
 
-        if (arrLength <= n) n = arrLength;
+        require(arrLength <= n, "arrLength <= n");
 
         out = arr;
 
-        uint256 c;
-
-        unchecked {
-            for (uint256 i; i < n; ++i) {
-                c = i + (uint256(keccak256(abi.encode(rand, i))) % (arrLength - i));
-                (out[i], out[c]) = (out[c], out[i]);
-            }
+        for (uint256 i; i < n; ++i) {
+            uint256 c = random.next(i, arrLength);
+            (out[i], out[c]) = (out[c], out[i]);
         }
 
         out = _slice(out, 0, n);
@@ -202,220 +229,177 @@ library fUtils {
         for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
     }
 
+    function _toUint256Array(bytes memory arr, uint256 length) internal pure returns (uint256[] memory out) {
+        assembly {
+            out := arr
+            mstore(out, length)
+        }
+    }
+
     /* ------------- uint8 ------------- */
 
-    function toMemory(uint8[1] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](1);
-            for (uint256 i; i < 1; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[1] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[2] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](2);
-            for (uint256 i; i < 2; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[2] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[3] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](3);
-            for (uint256 i; i < 3; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[3] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[4] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](4);
-            for (uint256 i; i < 4; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[4] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[5] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](5);
-            for (uint256 i; i < 5; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[5] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[6] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](6);
-            for (uint256 i; i < 6; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[6] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[7] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](7);
-            for (uint256 i; i < 7; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[7] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[8] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](8);
-            for (uint256 i; i < 8; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[8] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[9] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](9);
-            for (uint256 i; i < 9; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[9] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint8[10] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](10);
-            for (uint256 i; i < 10; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint8[10] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[11] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[12] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[13] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[14] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[15] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[16] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[17] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[18] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[19] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
+    }
+
+    function toMemory(uint8[20] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
     /* ------------- uint16 ------------- */
 
-    function toMemory(uint16[1] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](1);
-            for (uint256 i; i < 1; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[1] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[2] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](2);
-            for (uint256 i; i < 2; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[2] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[3] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](3);
-            for (uint256 i; i < 3; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[3] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[4] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](4);
-            for (uint256 i; i < 4; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[4] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[5] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](5);
-            for (uint256 i; i < 5; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[5] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[6] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](6);
-            for (uint256 i; i < 6; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[6] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[7] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](7);
-            for (uint256 i; i < 7; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[7] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[8] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](8);
-            for (uint256 i; i < 8; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[8] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[9] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](9);
-            for (uint256 i; i < 9; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[9] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint16[10] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](10);
-            for (uint256 i; i < 10; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint16[10] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
     /* ------------- uint256 ------------- */
 
-    function toMemory(uint256[1] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](1);
-            for (uint256 i; i < 1; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[1] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[2] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](2);
-            for (uint256 i; i < 2; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[2] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[3] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](3);
-            for (uint256 i; i < 3; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[3] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[4] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](4);
-            for (uint256 i; i < 4; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[4] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[5] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](5);
-            for (uint256 i; i < 5; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[5] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[6] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](6);
-            for (uint256 i; i < 6; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[6] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[7] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](7);
-            for (uint256 i; i < 7; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[7] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[8] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](8);
-            for (uint256 i; i < 8; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[8] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[9] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](9);
-            for (uint256 i; i < 9; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[9] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
-    function toMemory(uint256[10] memory arr) internal pure returns (uint256[] memory out) {
-        unchecked {
-            out = new uint256[](10);
-            for (uint256 i; i < 10; ++i) out[i] = arr[i];
-        }
+    function toMemory(uint256[10] memory arr) internal pure returns (uint256[] memory) {
+        return _toUint256Array(abi.encode(arr), arr.length);
     }
 
     /* ------------- debug ------------- */
@@ -472,7 +456,7 @@ library fUtils {
         return numBytes;
     }
 
-    function dump(uint256 location, uint256 numSlots) internal view {
+    function mdump(uint256 location, uint256 numSlots) internal view {
         bytes32 m;
         for (uint256 i; i < numSlots; i++) {
             assembly {
@@ -483,28 +467,32 @@ library fUtils {
         }
     }
 
-    function dump(bytes memory arg) internal view {
-        dump(loc(arg), (arg.length + 1) / 32 + 1);
+    function mdump(bytes memory arg) internal view {
+        mdump(mloc(arg), (arg.length + 1) / 32 + 1);
     }
 
-    function dump(bytes32[] memory arg) internal view {
-        dump(loc(arg), arg.length + 1);
+    function mdump(bytes32[] memory arg) internal view {
+        mdump(mloc(arg), arg.length + 1);
     }
 
-    function loc(bytes memory arr) internal pure returns (uint256 loc_) {
+    function mdump(uint256[] memory arg) internal view {
+        mdump(mloc(arg), arg.length + 1);
+    }
+
+    function mloc(bytes memory arr) internal pure returns (uint256 loc_) {
         assembly { loc_ := arr } // prettier-ignore
     }
 
-    function loc(bytes32[] memory arr) internal pure returns (uint256 loc_) {
+    function mloc(bytes32[] memory arr) internal pure returns (uint256 loc_) {
         assembly { loc_ := arr } // prettier-ignore
     }
 
-    function loc(uint256[] memory arr) internal pure returns (uint256 loc_) {
+    function mloc(uint256[] memory arr) internal pure returns (uint256 loc_) {
         assembly { loc_ := arr } // prettier-ignore
     }
 
     function scrambleMem(bytes32[] memory arr) internal pure {
-        return scrambleMem(loc(arr) + 32, arr.length * 32);
+        return scrambleMem(mloc(arr) + 32, arr.length * 32);
     }
 
     function scrambleMem(uint256 offset, uint256 bytesLen) internal pure {

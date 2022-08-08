@@ -18,28 +18,35 @@ contract TestFUtils is Test {
         }
     }
 
-    function test_range(uint256 from, uint256 size) public {
-        from = bound(from, 0, MAX_CEIL);
-        size = bound(size, 0, MAX);
-
-        uint256 to = from + size;
-
-        uint256[] memory range = from.range(to);
-
-        for (uint256 i; i < size; i++) assertEq(range[i], from + i);
+    function test_random_fail_SeedUnset() public {
+        vm.expectRevert("Random seed unset.");
+        random.next();
     }
+
+    // function test_range(uint256 from, uint256 size) public {
+    //     from = bound(from, 0, MAX_CEIL);
+    //     size = bound(size, 0, MAX);
+
+    //     uint256 to = from + size;
+
+    //     uint256[] memory range = from.range(to);
+
+    //     for (uint256 i; i < size; i++) assertEq(range[i], from + i);
+    // }
 
     function test_shuffledRange(
         uint256 from,
         uint256 size,
         uint256 rand
     ) public {
+        random.seed(rand);
+
         from = bound(from, 0, MAX_CEIL);
         size = bound(size, 0, MAX);
 
         uint256 to = from + size;
 
-        uint256[] memory shuffled = from.shuffledRange(to, rand);
+        uint256[] memory shuffled = from.shuffledRange(to);
 
         // local rejects should flag if this were always the case
         vm.assume(!shuffled.eq(from.range(to)));
@@ -56,12 +63,14 @@ contract TestFUtils is Test {
         uint256 size,
         uint256 rand
     ) public {
+        random.seed(rand);
+
         from = bound(from, 0, MAX_CEIL);
         size = bound(size, 0, MAX);
 
         uint256 to = from + size;
 
-        uint256[] memory shuffled = from.shuffledRange(to, rand);
+        uint256[] memory shuffled = from.shuffledRange(to);
 
         assertEq(shuffled.sort(), from.range(to));
     }
