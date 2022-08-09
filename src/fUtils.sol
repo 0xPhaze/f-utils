@@ -247,16 +247,16 @@ library fUtils {
     function filterIndices(address[] memory arr, address item) internal pure returns (uint256[] memory indices) {
         indices = new uint256[](0);
         uint256[] memory ptr = indices;
+        uint256 counter;
         for (uint256 i; i < arr.length; ++i) {
             if (arr[i] == item) {
                 assembly {
-                    ptr := add(ptr, 0x20)
-                    mstore(ptr, i)
+                    mstore(add(ptr, mul(counter, 0x20)), counter)
                 }
             }
         }
         assembly {
-            mstore(indices, sub(ptr, indices))
+            mstore(indices, counter)
         }
     }
 
