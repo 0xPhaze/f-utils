@@ -252,7 +252,7 @@ library fUtils {
             if (arr[i] == item) {
                 assembly {
                     counter := add(counter, 1)
-                    mstore(add(ptr, mul(counter, 0x20)), counter)
+                    mstore(add(ptr, mul(counter, 0x20)), i)
                 }
             }
         }
