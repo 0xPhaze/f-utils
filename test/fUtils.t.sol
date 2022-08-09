@@ -133,4 +133,8 @@ contract TestFUtils is Test {
 
         for (uint256 i; i < setB.length; i++) assertNotIncludes(set, setB[i]);
     }
+
+    // function test_filterIndices(uint256 seed) public {
+    //     random.seed(seed);
+    // }
 }

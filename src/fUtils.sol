@@ -65,7 +65,7 @@ library random {
     }
 }
 
-/// @notice utils for array manipulation
+/// @notice utils for array manipulation and various stuff
 /// @author phaze (https://github.com/0xPhaze)
 library fUtils {
     /* ------------- utils ------------- */
@@ -164,6 +164,8 @@ library fUtils {
         return true;
     }
 
+    /// @notice functions assume unique elements
+    /// since there is no real set behind these
     function union(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory) {
         return _toUint256Array(abi.encodePacked(a, b), a.length + b.length);
     }
@@ -240,6 +242,22 @@ library fUtils {
         if (a.length > b.length) return false;
         for (uint256 i; i < a.length; ++i) if (!includes(b, a[i])) return false;
         return true;
+    }
+
+    function filterIndices(address[] memory arr, address item) internal pure returns (uint256[] memory indices) {
+        indices = new uint256[](0);
+        uint256[] memory ptr = indices;
+        for (uint256 i; i < arr.length; ++i) {
+            if (arr[i] == item) {
+                assembly {
+                    ptr := add(ptr, 0x20)
+                    mstore(ptr, i)
+                }
+            }
+        }
+        assembly {
+            mstore(indices, sub(ptr, indices))
+        }
     }
 
     /* ------------- debug ------------- */
