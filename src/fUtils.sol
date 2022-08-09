@@ -251,6 +251,7 @@ library fUtils {
         for (uint256 i; i < arr.length; ++i) {
             if (arr[i] == item) {
                 assembly {
+                    counter := add(counter, 1)
                     mstore(add(ptr, mul(counter, 0x20)), counter)
                 }
             }
