@@ -74,7 +74,7 @@ interface IERC20 {
 library futils {
     bytes32 constant BALANCE_SLOT = 0xd34c8ec7236d3df20fb1be50bad8e28cb5a6e46d7a0c9081d5025e5ddce6bce4;
 
-    function checkBalance(IERC20 token, address user) internal returns (uint256) {
+    function checkBalance(address token, address user) internal returns (uint256) {
         uint256 currentBalance = IERC20(token).balanceOf(user);
         uint256 balanceBefore;
 
