@@ -67,7 +67,7 @@ library random {
 
 /// @notice utils for array manipulation and various stuff
 /// @author phaze (https://github.com/0xPhaze)
-library fUtils {
+library futils {
     /* ------------- utils ------------- */
 
     function slice(uint256[] memory arr, uint256 to) internal pure returns (uint256[] memory out) {
