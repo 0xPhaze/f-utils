@@ -65,10 +65,35 @@ library random {
     }
 }
 
+interface IERC20 {
+    function balanceOf(address user) external returns (uint256);
+}
+
 /// @notice utils for array manipulation and various stuff
 /// @author phaze (https://github.com/0xPhaze)
 library futils {
-    /* ------------- utils ------------- */
+    bytes32 constant BALANCE_SLOT = 0xd34c8ec7236d3df20fb1be50bad8e28cb5a6e46d7a0c9081d5025e5ddce6bce4;
+
+    function checkBalance(IERC20 token, address user) internal returns (uint256) {
+        uint256 currentBalance = IERC20(token).balanceOf(user);
+        uint256 balanceBefore;
+
+        assembly {
+            mstore(0x00, user)
+            mstore(0x20, BALANCE_SLOT)
+
+            let slot := keccak256(0x00, 0x40)
+
+            balanceBefore := sload(slot)
+            sstore(slot, currentBalance)
+        }
+
+        if (balanceBefore == 0) return 0;
+
+        return balanceBefore - currentBalance;
+    }
+
+    /* ------------- array stuff ------------- */
 
     function slice(uint256[] memory arr, uint256 to) internal pure returns (uint256[] memory out) {
         return slice(arr, 0, to);
