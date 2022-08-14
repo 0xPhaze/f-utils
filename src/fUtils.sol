@@ -93,6 +93,24 @@ library futils {
         return balanceBefore - currentBalance;
     }
 
+    /// @dev truncates values
+    function balanceDiff(address token, address user) internal returns (int256) {
+        uint256 currentBalance = IERC20(token).balanceOf(user);
+        uint256 balanceBefore;
+
+        assembly {
+            mstore(0x00, user)
+            mstore(0x20, BALANCE_SLOT)
+
+            let slot := keccak256(0x00, 0x40)
+
+            balanceBefore := sload(slot)
+            sstore(slot, currentBalance)
+        }
+
+        return int256(currentBalance) - int256(balanceBefore);
+    }
+
     /* ------------- array stuff ------------- */
 
     function slice(uint256[] memory arr, uint256 to) internal pure returns (uint256[] memory out) {
