@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../src/futils.sol";
-
 import "forge-std/Test.sol";
+
+import "../src/futils.sol";
 
 contract TestFUtils is Test {
     using futils for *;
