@@ -24,6 +24,15 @@ contract TestFUtils is Test {
         random.next();
     }
 
+    function test_toMemory() public {
+        uint256[] memory arr = new uint256[](3);
+        arr[0] = 0x123;
+        arr[1] = 0x124;
+        arr[2] = 0x125;
+
+        assertEq(arr, [0x123, 0x124, 0x125].toMemory());
+    }
+
     function test_range(uint256 from, uint256 size) public {
         size = bound(size, 0, MAX);
         from = bound(from, 0, MAX_CEIL);

@@ -210,7 +210,7 @@ library futils {
     /// @notice functions assume unique elements
     /// since there is no real set behind these
     function union(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encodePacked(a, b), a.length + b.length);
+        return _toUint256Array(abi.encodePacked(a, b));
     }
 
     function exclusion(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory out) {
@@ -451,225 +451,225 @@ library futils {
 
     /* ------------- toMemory ------------- */
 
-    function _toUint256Array(bytes memory arr, uint256 length) internal pure returns (uint256[] memory out) {
+    function _toUint256Array(bytes memory arr) internal pure returns (uint256[] memory out) {
         assembly {
             out := arr
-            mstore(out, length)
+            mstore(out, shr(5, add(mload(arr), 31)))
         }
     }
 
-    function _toAddressArray(bytes memory arr, uint256 length) internal pure returns (address[] memory out) {
+    function _toAddressArray(bytes memory arr) internal pure returns (address[] memory out) {
         assembly {
             out := arr
-            mstore(out, length)
+            mstore(out, shr(5, add(mload(arr), 31)))
         }
     }
 
     /* ------------- uint8 ------------- */
 
     function toMemory(uint8[1] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[2] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[3] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[4] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[5] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[6] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[7] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[8] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[9] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[10] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[11] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[12] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[13] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[14] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[15] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[16] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[17] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[18] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[19] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint8[20] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     /* ------------- uint16 ------------- */
 
     function toMemory(uint16[1] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[2] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[3] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[4] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[5] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[6] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[7] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[8] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[9] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint16[10] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     /* ------------- uint256 ------------- */
 
     function toMemory(uint256[1] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[2] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[3] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[4] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[5] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[6] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[7] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[8] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[9] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     function toMemory(uint256[10] memory arr) internal pure returns (uint256[] memory) {
-        return _toUint256Array(abi.encode(arr), arr.length);
+        return _toUint256Array(abi.encode(arr));
     }
 
     /* ------------- address ------------- */
 
     function toMemory(address[1] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[2] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[3] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[4] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[5] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[6] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[7] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[8] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[9] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 
     function toMemory(address[10] memory arr) internal pure returns (address[] memory) {
-        return _toAddressArray(abi.encode(arr), arr.length);
+        return _toAddressArray(abi.encode(arr));
     }
 }
