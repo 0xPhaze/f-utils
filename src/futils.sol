@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "forge-std/Test.sol";
+import {console as fconsole} from "forge-std/Test.sol";
 
 library random {
     bytes32 constant RANDOM_SEED_SET = 0xf6edd386d8fa10678fb6c3e013a7b5212537dbd31d474d780e3d67984c6bec33;
@@ -369,8 +369,8 @@ library futils {
             assembly {
                 m := mload(add(location, mul(32, i)))
             }
-            console.log(location, 32 * i);
-            console.logBytes32(m);
+            fconsole.log(location, 32 * i);
+            fconsole.logBytes32(m);
         }
     }
 
