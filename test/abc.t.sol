@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "../src/fUtils.sol";
+import "../src/futils.sol";
 
 import "forge-std/Test.sol";
 
 contract TestFUtils is Test {
-    using fUtils for *;
+    using futils for *;
 
     uint256 constant MAX = 100;
     uint256 constant MAX_CEIL = type(uint256).max - MAX;
