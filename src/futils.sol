@@ -113,63 +113,85 @@ library futils {
 
     /* ------------- array stuff ------------- */
 
-    function slice(uint256[] memory arr, uint256 to) internal pure returns (uint256[] memory out) {
-        return slice(arr, 0, to);
+    function slice(uint256[] memory arr, uint256 end) internal pure returns (uint256[] memory out) {
+        return slice(arr, 0, end);
     }
 
     function slice(
         uint256[] memory arr,
-        uint256 from,
-        uint256 to
+        uint256 start,
+        uint256 end
     ) internal pure returns (uint256[] memory out) {
-        if (to > arr.length) return arr;
-        if (to < from) return new uint256[](0);
+        // to make silent assumptions or to throw, that is the question...
+        // require(start <= end, "start <= end doesn't hold.");
+        if (end <= start) return new uint256[](0);
 
-        uint256 n = to - from;
+        uint256 n = end - start;
+
+        // should actually be returning a copy?
+        if (n >= arr.length) return arr;
+
         out = new uint256[](n);
 
-        for (uint256 i = 0; i < n; ++i) out[i] = arr[from + i];
+        unchecked {
+            for (uint256 i; i < n; ++i) out[i] = arr[start + i];
+        }
+    }
+
+    function slice(
+        mapping(uint256 => uint256) storage map,
+        uint256 start,
+        uint256 end
+    ) internal view returns (uint256[] memory out) {
+        if (end <= start) return new uint256[](0);
+
+        uint256 n = end - start;
+        out = new uint256[](n);
+
+        unchecked {
+            for (uint256 i; i < n; ++i) out[i] = map[start + i];
+        }
     }
 
     function _slice(
         uint256[] memory arr,
-        uint256 from,
-        uint256 to
+        uint256 start,
+        uint256 end
     ) internal pure returns (uint256[] memory out) {
-        if (to > arr.length) return arr;
-        if (to < from) to = from;
+        if (end > arr.length) return arr;
+        if (end < start) end = start;
 
         assembly {
-            out := add(arr, mul(0x20, from))
-            mstore(out, sub(to, from))
+            out := add(arr, mul(0x20, start))
+            mstore(out, sub(end, start))
         }
     }
 
-    function range(uint256 from, uint256 to) internal pure returns (uint256[] memory out) {
-        if (to <= from) return new uint256[](0);
+    function range(uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
+        if (end <= start) return new uint256[](0);
 
-        uint256 n = to - from;
+        uint256 n = end - start;
         out = new uint256[](n);
 
-        for (uint256 i; i < n; ++i) out[i] = from + i;
+        for (uint256 i; i < n; ++i) out[i] = start + i;
     }
 
-    function copy(uint256[] memory from) internal pure returns (uint256[] memory to) {
-        uint256 n = from.length;
+    function copy(uint256[] memory start) internal pure returns (uint256[] memory end) {
+        uint256 n = start.length;
 
-        to = new uint256[](n);
+        end = new uint256[](n);
 
-        for (uint256 i = 0; i < n; ++i) to[i] = from[i];
+        for (uint256 i = 0; i < n; ++i) end[i] = start[i];
 
-        return to;
+        return end;
     }
 
-    function _copy(uint256[] memory from, uint256[] memory to) internal pure returns (uint256[] memory) {
-        uint256 n = from.length;
+    function _copy(uint256[] memory start, uint256[] memory end) internal pure returns (uint256[] memory) {
+        uint256 n = start.length;
 
-        for (uint256 i = 0; i < n; ++i) to[i] = from[i];
+        for (uint256 i = 0; i < n; ++i) end[i] = start[i];
 
-        return to;
+        return end;
     }
 
     function shuffle(uint256[] memory arr) internal returns (uint256[] memory out) {
@@ -187,15 +209,15 @@ library futils {
         }
     }
 
-    function shuffledRange(uint256 from, uint256 to) internal returns (uint256[] memory out) {
-        if (to <= from) return new uint256[](0);
+    function shuffledRange(uint256 start, uint256 end) internal returns (uint256[] memory out) {
+        if (end <= start) return new uint256[](0);
 
-        uint256 n = to - from;
+        uint256 n = end - start;
         out = new uint256[](n);
 
         for (uint256 i = 0; i < n; ++i) {
             uint256 c = random.next(i + 1);
-            (out[c], out[i]) = (from + i, out[c]);
+            (out[c], out[i]) = (start + i, out[c]);
         }
     }
 
@@ -427,7 +449,7 @@ library futils {
         }
     }
 
-    function scrambleStorage(uint256 offset, uint256 numSlots) public {
+    function scrambleStorage(uint256 offset, uint256 numSlots) internal {
         bytes32 rand;
         for (uint256 slot; slot < numSlots; slot++) {
             rand = keccak256(abi.encodePacked(offset + slot));
