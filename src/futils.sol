@@ -74,33 +74,19 @@ interface IERC20 {
 library futils {
     bytes32 constant BALANCE_SLOT = 0xd34c8ec7236d3df20fb1be50bad8e28cb5a6e46d7a0c9081d5025e5ddce6bce4;
 
-    function checkBalance(address token, address user) internal returns (uint256) {
-        uint256 currentBalance = IERC20(token).balanceOf(user);
-        uint256 balanceBefore;
-
-        assembly {
-            mstore(0x00, user)
-            mstore(0x20, BALANCE_SLOT)
-
-            let slot := keccak256(0x00, 0x40)
-
-            balanceBefore := sload(slot)
-            sstore(slot, currentBalance)
-        }
-
-        if (balanceBefore == 0) return 0;
-
-        return balanceBefore - currentBalance;
-    }
-
     /// @dev truncates values
     function balanceDiff(address token, address user) internal returns (int256) {
         uint256 currentBalance = IERC20(token).balanceOf(user);
         uint256 balanceBefore;
 
         assembly {
-            mstore(0x00, user)
+            // mapping(address token => mapping(address user => uint256 balance))
+
             mstore(0x20, BALANCE_SLOT)
+            mstore(0x00, token)
+
+            mstore(0x20, keccak256(0x00, 0x40))
+            mstore(0x00, user)
 
             let slot := keccak256(0x00, 0x40)
 
