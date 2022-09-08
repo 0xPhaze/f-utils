@@ -97,6 +97,24 @@ library futils {
         return int256(currentBalance) - int256(balanceBefore);
     }
 
+    // bytes32 constant GAS_SLOT = keccak256("gas.slot");
+
+    // function logGas(bool log) private {
+    //     vm.toString(uint256(0));
+    //     bytes32 slot = GAS_SLOT;
+    //     uint256 lastGasUsed;
+    //     assembly {
+    //         lastGasUsed := sload(slot)
+    //         sstore(slot, 1)
+    //         sstore(slot, gas())
+    //     }
+    //     if (lastGasUsed != 0 && log) {
+    //         uint256 gasNow = gasleft();
+    //         uint256 gasSpent = lastGasUsed - gasNow - 1410;
+    //         console.log(string.concat(vm.toString(gasSpent), " gas "));
+    //     }
+    // }
+
     /* ------------- array stuff ------------- */
 
     function slice(uint256[] memory arr, uint256 end) internal pure returns (uint256[] memory out) {
@@ -219,6 +237,24 @@ library futils {
     /// since there is no real set behind these
     function union(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory) {
         return _toUint256Array(abi.encodePacked(a, b));
+    }
+
+    function unique(uint256[] memory a) internal pure returns (uint256[] memory out) {
+        uint256 length = a.length;
+
+        out = new uint256[](length);
+
+        uint256 k;
+
+        for (uint256 i; i < length; i++) if (!includes(out, a[i])) out[k++] = a[i];
+
+        assembly {
+            mstore(out, k)
+        }
+    }
+
+    function exclude(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory) {
+        return exclusion(a, b);
     }
 
     function exclusion(uint256[] memory a, uint256[] memory b) internal pure returns (uint256[] memory out) {
