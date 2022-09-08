@@ -246,7 +246,7 @@ library futils {
 
         uint256 k;
 
-        for (uint256 i; i < length; i++) if (!includes(out, a[i])) out[k++] = a[i];
+        for (uint256 i; i < length; i++) if (!includes(out, a[i], k)) out[k++] = a[i];
 
         assembly {
             mstore(out, k)
@@ -311,6 +311,14 @@ library futils {
         uint256 arrLength = arr.length;
         out = _copy(arr, new uint256[](arrLength + 1));
         out[arrLength] = value;
+    }
+
+    function includes(
+        uint256[] memory arr,
+        uint256 item,
+        uint256 length
+    ) internal pure returns (bool out) {
+        for (uint256 i; i < length; ++i) if (arr[i] == item) return true;
     }
 
     function includes(uint256[] memory arr, uint256 item) internal pure returns (bool out) {
