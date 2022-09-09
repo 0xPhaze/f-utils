@@ -333,8 +333,9 @@ library futils {
         for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
     }
 
-    function isSubset(uint256[] memory a, uint256[] memory b) internal pure returns (bool out) {
+    function isSubset(uint256[] memory a, uint256[] memory b) internal pure returns (bool) {
         for (uint256 i; i < a.length; ++i) if (!includes(b, a[i])) return false;
+        return true;
     }
 
     function filterIndices(address[] memory arr, address item) internal pure returns (uint256[] memory indices) {
