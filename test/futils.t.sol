@@ -30,14 +30,14 @@ contract TestFUtils is Test {
     }
 
     /// @dev needs more testing
-    function test_toEncodedTypeData() public {
+    function test_toEncodedArrayType() public {
         T[] memory t = new T[](4);
         t[0] = T({a: 0x111, b: 0x222});
         t[1] = T({a: 0x333, b: 0x444});
         t[2] = T({a: 0x555, b: 0x666});
         t[3] = T({a: 0x777, b: 0x888});
 
-        bytes memory tdata = abi.encode(t[0], t[1], t[2], t[3]).toEncodedTypeData(64);
+        bytes memory tdata = abi.encode(t[0], t[1], t[2], t[3]).toEncodedArrayType(64);
 
         T[] memory t2 = abi.decode(tdata, (T[]));
 

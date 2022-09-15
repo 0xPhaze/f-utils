@@ -171,7 +171,7 @@ library futils {
         }
     }
 
-    function toEncodedTypeData(bytes memory data, uint256 typeSize) internal pure returns (bytes memory tdata) {
+    function toEncodedArrayType(bytes memory data, uint256 typeSize) internal pure returns (bytes memory tdata) {
         tdata = abi.encode(data);
         assembly {
             // size = (bytesSize + typeSize - 1) / typeSize
