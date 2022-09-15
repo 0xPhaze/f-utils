@@ -171,6 +171,14 @@ library futils {
         }
     }
 
+    function toEncodedTypeData(bytes memory data, uint256 typeSize) internal pure returns (bytes memory tdata) {
+        tdata = abi.encode(data);
+        assembly {
+            // size = (bytesSize + typeSize - 1) / typeSize
+            mstore(add(tdata, 0x40), div(add(mload(data), sub(typeSize, 1)), typeSize))
+        }
+    }
+
     function range(uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
         if (end <= start) return new uint256[](0);
 

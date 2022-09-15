@@ -24,6 +24,33 @@ contract TestFUtils is Test {
         random.next();
     }
 
+    struct T {
+        uint256 a;
+        uint256 b;
+    }
+
+    /// @dev needs more testing
+    function test_toEncodedTypeData() public {
+        T[] memory t = new T[](4);
+        t[0] = T({a: 0x111, b: 0x222});
+        t[1] = T({a: 0x333, b: 0x444});
+        t[2] = T({a: 0x555, b: 0x666});
+        t[3] = T({a: 0x777, b: 0x888});
+
+        bytes memory tdata = abi.encode(t[0], t[1], t[2], t[3]).toEncodedTypeData(64);
+
+        T[] memory t2 = abi.decode(tdata, (T[]));
+
+        assertEq(t[0].a, t2[0].a);
+        assertEq(t[0].b, t2[0].b);
+        assertEq(t[1].a, t2[1].a);
+        assertEq(t[1].b, t2[1].b);
+        assertEq(t[2].a, t2[2].a);
+        assertEq(t[2].b, t2[2].b);
+        assertEq(t[3].a, t2[3].a);
+        assertEq(t[3].b, t2[3].b);
+    }
+
     function test_toMemory() public {
         uint256[] memory arr = new uint256[](3);
         arr[0] = 0x123;
