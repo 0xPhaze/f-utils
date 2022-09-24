@@ -440,7 +440,7 @@ library futils {
     }
 
     function mdump(bytes memory arg) internal view {
-        mdump(mloc(arg), (arg.length + 1) / 32 + 1);
+        mdump(mloc(arg), (arg.length + 31) / 32 + 1);
     }
 
     function mdump(bytes32[] memory arg) internal view {
