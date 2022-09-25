@@ -97,6 +97,28 @@ library futils {
         return int256(currentBalance) - int256(balanceBefore);
     }
 
+    function balanceDiff(address user) internal returns (int256) {
+        uint256 currentBalance = user.balance;
+        uint256 balanceBefore;
+
+        assembly {
+            // mapping(address token => mapping(address user => uint256 balance))
+
+            mstore(0x20, BALANCE_SLOT)
+            mstore(0x00, 0)
+
+            mstore(0x20, keccak256(0x00, 0x40))
+            mstore(0x00, user)
+
+            let slot := keccak256(0x00, 0x40)
+
+            balanceBefore := sload(slot)
+            sstore(slot, currentBalance)
+        }
+
+        return int256(currentBalance) - int256(balanceBefore);
+    }
+
     // bytes32 constant GAS_SLOT = keccak256("gas.slot");
 
     // function logGas(bool log) private {
