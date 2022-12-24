@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {console as fconsole} from "forge-std/Test.sol";
+import {console as fconsole, TestBase} from "forge-std/Test.sol";
 
 library random {
     bytes32 constant RANDOM_SEED_SET = 0xf6edd386d8fa10678fb6c3e013a7b5212537dbd31d474d780e3d67984c6bec33;
@@ -48,11 +48,7 @@ library random {
         return nextFromRandomSeed(low, high, randomSeed);
     }
 
-    function nextFromRandomSeed(
-        uint256 low,
-        uint256 high,
-        uint256 randomSeed
-    ) internal returns (uint256 nextRandom) {
+    function nextFromRandomSeed(uint256 low, uint256 high, uint256 randomSeed) internal returns (uint256 nextRandom) {
         require(low <= high, "low <= high");
 
         assembly {
@@ -143,11 +139,7 @@ library futils {
         return slice(arr, 0, end);
     }
 
-    function slice(
-        uint256[] memory arr,
-        uint256 start,
-        uint256 end
-    ) internal pure returns (uint256[] memory out) {
+    function slice(uint256[] memory arr, uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
         // to make silent assumptions or to throw, that is the question...
         // require(start <= end, "start <= end doesn't hold.");
         if (end <= start) return new uint256[](0);
@@ -160,30 +152,30 @@ library futils {
         out = new uint256[](n);
 
         unchecked {
-            for (uint256 i; i < n; ++i) out[i] = arr[start + i];
+            for (uint256 i; i < n; ++i) {
+                out[i] = arr[start + i];
+            }
         }
     }
 
-    function slice(
-        mapping(uint256 => uint256) storage map,
-        uint256 start,
-        uint256 end
-    ) internal view returns (uint256[] memory out) {
+    function slice(mapping(uint256 => uint256) storage map, uint256 start, uint256 end)
+        internal
+        view
+        returns (uint256[] memory out)
+    {
         if (end <= start) return new uint256[](0);
 
         uint256 n = end - start;
         out = new uint256[](n);
 
         unchecked {
-            for (uint256 i; i < n; ++i) out[i] = map[start + i];
+            for (uint256 i; i < n; ++i) {
+                out[i] = map[start + i];
+            }
         }
     }
 
-    function _slice(
-        uint256[] memory arr,
-        uint256 start,
-        uint256 end
-    ) internal pure returns (uint256[] memory out) {
+    function _slice(uint256[] memory arr, uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
         if (end > arr.length) return arr;
         if (end < start) end = start;
 
@@ -204,7 +196,9 @@ library futils {
     function repeat(uint256 num, uint256 times) internal pure returns (uint256[] memory out) {
         out = new uint256[](times);
 
-        for (uint256 i; i < times; ++i) out[i] = num;
+        for (uint256 i; i < times; ++i) {
+            out[i] = num;
+        }
     }
 
     function range(uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
@@ -213,25 +207,31 @@ library futils {
         uint256 n = end - start;
         out = new uint256[](n);
 
-        for (uint256 i; i < n; ++i) out[i] = start + i;
+        for (uint256 i; i < n; ++i) {
+            out[i] = start + i;
+        }
     }
 
-    function copy(uint256[] memory start) internal pure returns (uint256[] memory end) {
-        uint256 n = start.length;
+    function copy(uint256[] memory from) internal pure returns (uint256[] memory to) {
+        uint256 n = from.length;
 
-        end = new uint256[](n);
+        to = new uint256[](n);
 
-        for (uint256 i = 0; i < n; ++i) end[i] = start[i];
+        for (uint256 i = 0; i < n; ++i) {
+            to[i] = from[i];
+        }
 
-        return end;
+        return to;
     }
 
-    function _copy(uint256[] memory start, uint256[] memory end) internal pure returns (uint256[] memory) {
-        uint256 n = start.length;
+    function _copy(uint256[] memory from, uint256[] memory to) internal pure returns (uint256[] memory) {
+        uint256 n = from.length;
 
-        for (uint256 i = 0; i < n; ++i) end[i] = start[i];
+        for (uint256 i = 0; i < n; ++i) {
+            to[i] = from[i];
+        }
 
-        return end;
+        return to;
     }
 
     function shuffle(uint256[] memory arr) internal returns (uint256[] memory out) {
@@ -265,7 +265,9 @@ library futils {
         uint256 aSize = a.length;
         if (aSize != b.length) return false;
 
-        for (uint256 i; i < aSize; i++) if (a[i] != b[i]) return false;
+        for (uint256 i; i < aSize; i++) {
+            if (a[i] != b[i]) return false;
+        }
         return true;
     }
 
@@ -282,7 +284,9 @@ library futils {
 
         uint256 k;
 
-        for (uint256 i; i < length; i++) if (!includes(out, a[i], k)) out[k++] = a[i];
+        for (uint256 i; i < length; i++) {
+            if (!includes(out, a[i], k)) out[k++] = a[i];
+        }
 
         assembly {
             mstore(out, k)
@@ -303,7 +307,9 @@ library futils {
 
         uint256 k;
 
-        for (uint256 i; i < aLength; i++) if (!includes(b, a[i])) out[k++] = a[i];
+        for (uint256 i; i < aLength; i++) {
+            if (!includes(b, a[i])) out[k++] = a[i];
+        }
 
         assembly {
             mstore(out, k)
@@ -349,28 +355,34 @@ library futils {
         out[arrLength] = value;
     }
 
-    function includes(
-        uint256[] memory arr,
-        uint256 item,
-        uint256 length
-    ) internal pure returns (bool out) {
-        for (uint256 i; i < length; ++i) if (arr[i] == item) return true;
+    function includes(uint256[] memory arr, uint256 item, uint256 length) internal pure returns (bool out) {
+        for (uint256 i; i < length; ++i) {
+            if (arr[i] == item) return true;
+        }
     }
 
     function includes(uint256[] memory arr, uint256 item) internal pure returns (bool out) {
-        for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
+        for (uint256 i; i < arr.length; ++i) {
+            if (arr[i] == item) return true;
+        }
     }
 
     function includes(bytes32[] memory arr, bytes32 item) internal pure returns (bool out) {
-        for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
+        for (uint256 i; i < arr.length; ++i) {
+            if (arr[i] == item) return true;
+        }
     }
 
     function includes(address[] memory arr, address item) internal pure returns (bool out) {
-        for (uint256 i; i < arr.length; ++i) if (arr[i] == item) return true;
+        for (uint256 i; i < arr.length; ++i) {
+            if (arr[i] == item) return true;
+        }
     }
 
     function isSubset(uint256[] memory a, uint256[] memory b) internal pure returns (bool) {
-        for (uint256 i; i < a.length; ++i) if (!includes(b, a[i])) return false;
+        for (uint256 i; i < a.length; ++i) {
+            if (!includes(b, a[i])) return false;
+        }
         return true;
     }
 
@@ -393,6 +405,53 @@ library futils {
         assembly {
             mstore(indices, counter)
             mstore(0x40, add(freeMem, 0x20))
+        }
+    }
+
+    // function logArray(uint256[] memory a) internal {
+    //     string memory concatenated;
+
+    //     for (uint256 i; i < a.length; i++) {
+    //         if (i != 0) concatenated = string.concat(concatenated, ", ");
+    //         concatenated = string.concat(concatenated, vm.toString(a[i]));
+    //     }
+
+    //     console.log(concatenated);
+    // }
+
+    function quickPerm(uint256[] memory a) internal pure returns (uint256[][] memory out) {
+        uint256 N = a.length;
+
+        uint256[] memory p = range(0, N + 1);
+        uint256[] memory perm = copy(a);
+        uint256[] memory firstRef = perm;
+
+        uint256 j;
+        uint256 outSize = 1;
+
+        for (uint256 i = 1; i < N; ++outSize) {
+            p[i] -= 1;
+
+            j = (i & 1) * p[i];
+
+            perm = copy(perm);
+
+            (perm[i], perm[j]) = (perm[j], perm[i]);
+
+            for (i = 1; p[i] == 0; ++i) {
+                p[i] = i;
+            }
+        }
+
+        out = new uint256[][](outSize);
+
+        uint256 gap = 0x20 * (N + 1);
+
+        for (uint256 i; i < outSize; ++i) {
+            // soo memory-safe
+            assembly {
+                mstore(add(out, mul(0x20, add(i, 1))), add(firstRef, mul(gap, i)))
+            }
         }
     }
 
@@ -454,9 +513,9 @@ library futils {
         bytes32 m;
         for (uint256 i; i < numSlots; i++) {
             assembly {
-                m := mload(add(location, mul(32, i)))
+                m := mload(add(location, mul(0x20, i)))
             }
-            fconsole.log(location, 32 * i);
+            fconsole.logBytes2(bytes2(uint16(location + 0x20 * i)));
             fconsole.logBytes32(m);
         }
     }
@@ -474,15 +533,21 @@ library futils {
     }
 
     function mloc(bytes memory arr) internal pure returns (uint256 loc_) {
-        assembly { loc_ := arr } // prettier-ignore
+        assembly {
+            loc_ := arr
+        } // prettier-ignore
     }
 
     function mloc(bytes32[] memory arr) internal pure returns (uint256 loc_) {
-        assembly { loc_ := arr } // prettier-ignore
+        assembly {
+            loc_ := arr
+        } // prettier-ignore
     }
 
     function mloc(uint256[] memory arr) internal pure returns (uint256 loc_) {
-        assembly { loc_ := arr } // prettier-ignore
+        assembly {
+            loc_ := arr
+        } // prettier-ignore
     }
 
     function scrambleMem(bytes32[] memory arr) internal pure {
@@ -525,11 +590,7 @@ library futils {
         }
     }
 
-    function mstore(
-        uint256 offset,
-        bytes32 val,
-        uint256 bytesLen
-    ) internal pure {
+    function mstore(uint256 offset, bytes32 val, uint256 bytesLen) internal pure {
         assembly {
             let mask := shr(mul(bytesLen, 8), sub(0, 1))
             mstore(offset, or(and(val, not(mask)), and(mload(offset), mask)))
