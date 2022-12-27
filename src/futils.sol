@@ -424,7 +424,7 @@ library futils {
 
         uint256[] memory p = range(0, N + 1);
         uint256[] memory perm = copy(a);
-        uint256[] memory firstRef = perm;
+        uint256[] memory firstPermRef = perm;
 
         uint256 j;
         uint256 outSize = 1;
@@ -445,12 +445,27 @@ library futils {
 
         out = new uint256[][](outSize);
 
-        uint256 gap = 0x20 * (N + 1);
+        uint256 permSize = 0x20 * (N + 1);
 
         for (uint256 i; i < outSize; ++i) {
             // soo memory-safe
             assembly {
-                mstore(add(out, mul(0x20, add(i, 1))), add(firstRef, mul(gap, i)))
+                let permRef := add(firstPermRef, mul(permSize, i))
+                let outIRef := add(out, mul(0x20, add(i, 1)))
+                mstore(outIRef, permRef)
+            }
+        }
+    }
+
+    function invPerm(uint256[] memory perm) internal pure returns (uint256[] memory inv) {
+        uint256 N = perm.length;
+        inv = new uint256[](N);
+        for (uint256 i; i < N; ++i) {
+            for (uint256 j; j < N; ++j) {
+                if (perm[j] == i) {
+                    inv[i] = j;
+                    break;
+                }
             }
         }
     }
