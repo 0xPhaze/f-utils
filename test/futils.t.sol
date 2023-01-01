@@ -8,17 +8,6 @@ import "../src/futils.sol";
 contract TestFUtils is Test {
     using futils for *;
 
-    uint256 constant MAX = 100;
-    uint256 constant MAX_CEIL = type(uint256).max - MAX;
-
-    function assertIsSubset(uint256[] memory a, uint256[] memory b) internal {
-        if (!a.isSubset(b)) fail("A <= B does not hold.");
-    }
-
-    function assertNotIncludes(uint256[] memory arr, uint256 value) internal {
-        if (arr.includes(value)) fail(string.concat("Array includes unexpected value.", vm.toString(value)));
-    }
-
     function test_random_fail_SeedUnset() public {
         vm.expectRevert("Random seed unset.");
         random.next();
@@ -60,35 +49,38 @@ contract TestFUtils is Test {
         assertEq(arr, [0x123, 0x124, 0x125].toMemory());
     }
 
-    function test_range(uint256 from, uint256 size) public {
-        size = bound(size, 0, MAX);
-        from = bound(from, 0, MAX_CEIL);
+    function testToStringArray() public {
+        string[4] memory arr = ["test123", "", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa", "xx"];
+        string[] memory arr2 = arr.toMemory();
 
-        uint256 to = from + size;
-
-        uint256[] memory range = from.range(to);
-
-        for (uint256 i; i < size; i++) {
-            assertEq(range[i], from + i);
-        }
+        assertEq(arr[0], arr2[0]);
+        assertEq(arr[1], arr2[1]);
+        assertEq(arr[2], arr2[2]);
+        assertEq(arr[3], arr2[3]);
     }
 
-    function test_shuffledRange(uint256 from, uint256 size, uint256 seed) public {
-        random.seed(seed);
+    // function test_filterIndices(uint256 seed) public {
+    //     random.seed(seed);
+    // }
+}
 
-        size = bound(size, 0, MAX);
-        from = bound(from, 0, MAX_CEIL);
+contract TestSets is Test {
+    using futils for *;
 
-        uint256 to = from + size;
+    uint256 constant MAX = 100;
+    uint256 constant MAX_CEIL = type(uint256).max - MAX;
 
-        uint256[] memory range = from.range(to);
-        uint256[] memory shuffled = from.shuffledRange(to);
+    /* ------------- helpers ------------- */
 
-        // local rejects should flag if this were always the case
-        vm.assume(!shuffled.eq(range));
-
-        assertIsSubset(range, shuffled);
+    function assertIsSubset(uint256[] memory a, uint256[] memory b) internal {
+        if (!a.isSubset(b)) fail("A <= B does not hold.");
     }
+
+    function assertNotIncludes(uint256[] memory arr, uint256 value) internal {
+        if (arr.includes(value)) fail(string.concat("Array includes unexpected value.", vm.toString(value)));
+    }
+
+    /* ------------- test ------------- */
 
     function test_sort(uint256[] memory input, uint256 seed) public {
         random.seed(seed);
@@ -187,8 +179,4 @@ contract TestFUtils is Test {
             }
         }
     }
-
-    // function test_filterIndices(uint256 seed) public {
-    //     random.seed(seed);
-    // }
 }

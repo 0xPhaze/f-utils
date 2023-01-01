@@ -533,6 +533,7 @@ library futils {
             fconsole.logBytes2(bytes2(uint16(location + 0x20 * i)));
             fconsole.logBytes32(m);
         }
+        fconsole.log();
     }
 
     function mdump(bytes memory arg) internal view {
@@ -550,19 +551,19 @@ library futils {
     function mloc(bytes memory arr) internal pure returns (uint256 loc_) {
         assembly {
             loc_ := arr
-        } // prettier-ignore
+        }
     }
 
     function mloc(bytes32[] memory arr) internal pure returns (uint256 loc_) {
         assembly {
             loc_ := arr
-        } // prettier-ignore
+        }
     }
 
     function mloc(uint256[] memory arr) internal pure returns (uint256 loc_) {
         assembly {
             loc_ := arr
-        } // prettier-ignore
+        }
     }
 
     function scrambleMem(bytes32[] memory arr) internal pure {
@@ -626,6 +627,175 @@ library futils {
             out := arr
             mstore(out, shr(5, add(mload(arr), 31)))
         }
+    }
+
+    function _toStringArray(bytes memory arr) internal pure returns (string[] memory out) {
+        assembly {
+            out := arr
+            mstore(out, shr(5, add(mload(arr), 31)))
+        }
+    }
+
+    /* ------------- string ------------- */
+
+    function toMemory(string[1] memory arr) internal pure returns (string[] memory) {
+        uint256[1] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[2] memory arr) internal pure returns (string[] memory) {
+        uint256[2] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[3] memory arr) internal pure returns (string[] memory) {
+        uint256[3] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[4] memory arr) internal pure returns (string[] memory) {
+        uint256[4] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[5] memory arr) internal pure returns (string[] memory) {
+        uint256[5] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[6] memory arr) internal pure returns (string[] memory) {
+        uint256[6] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[7] memory arr) internal pure returns (string[] memory) {
+        uint256[7] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[8] memory arr) internal pure returns (string[] memory) {
+        uint256[8] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[9] memory arr) internal pure returns (string[] memory) {
+        uint256[9] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[10] memory arr) internal pure returns (string[] memory) {
+        uint256[10] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[11] memory arr) internal pure returns (string[] memory) {
+        uint256[11] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[12] memory arr) internal pure returns (string[] memory) {
+        uint256[12] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[13] memory arr) internal pure returns (string[] memory) {
+        uint256[13] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[14] memory arr) internal pure returns (string[] memory) {
+        uint256[14] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[15] memory arr) internal pure returns (string[] memory) {
+        uint256[15] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[16] memory arr) internal pure returns (string[] memory) {
+        uint256[16] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[17] memory arr) internal pure returns (string[] memory) {
+        uint256[17] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[18] memory arr) internal pure returns (string[] memory) {
+        uint256[18] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[19] memory arr) internal pure returns (string[] memory) {
+        uint256[19] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
+    }
+
+    function toMemory(string[20] memory arr) internal pure returns (string[] memory) {
+        uint256[20] memory arrUint;
+        assembly {
+            arrUint := arr
+        }
+        return _toStringArray(abi.encode(arrUint));
     }
 
     /* ------------- uint8 ------------- */
