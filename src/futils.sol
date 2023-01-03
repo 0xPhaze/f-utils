@@ -14,6 +14,12 @@ library random {
         }
     }
 
+    function seed() internal view returns (uint256 randomSeed) {
+        assembly {
+            randomSeed := sload(RANDOM_SEED_SLOT)
+        }
+    }
+
     function next() internal returns (uint256) {
         return next(0, type(uint256).max);
     }
@@ -54,7 +60,7 @@ library random {
         assembly {
             mstore(0, randomSeed)
             nextRandom := keccak256(0, 0x20)
-            sstore(RANDOM_SEED_SLOT, randomSeed)
+            sstore(RANDOM_SEED_SLOT, nextRandom)
         }
 
         nextRandom = low + (nextRandom % (high - low));
