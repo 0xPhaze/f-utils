@@ -207,6 +207,14 @@ library futils {
         }
     }
 
+    function repeat(address addr, uint256 times) internal pure returns (address[] memory out) {
+        out = new address[](times);
+
+        for (uint256 i; i < times; ++i) {
+            out[i] = addr;
+        }
+    }
+
     function range(uint256 start, uint256 end) internal pure returns (uint256[] memory out) {
         if (end <= start) return new uint256[](0);
 
